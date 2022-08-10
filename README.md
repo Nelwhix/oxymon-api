@@ -20,4 +20,4 @@ Register route has required fields:
     values should be divided by 12</li>
 <li>'interest_type' takes only two values 'simple' and 'compound'.</li></ul>
 
-<p>If you are using postman, click <a href='https://www.postman.com/product/api-client/'>here</a></p>
+<p>For Documentation to see example requests and responses, click <a href='https://documenter.getpostman.com/view/21273414/VUjQkPqR'>here</a></p>
