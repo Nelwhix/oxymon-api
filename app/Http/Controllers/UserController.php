@@ -14,7 +14,7 @@ class UserController extends Controller
         $fields = $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|unique:users,email',
-            'credit_rating' => ['required', 'string', 'max:1'],
+            'credit_rating' => ['required', 'string', 'max:1', 'regex:/[ABCDEF]/'],
             'password' => 'required|string|confirmed'
         ]);
 
