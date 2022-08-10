@@ -25,6 +25,7 @@ class LoanController extends Controller
             'interest_type' => 'required|string'
         ]);
         $user_rating = $user->credit_rating;
+        $user_debt = $user->amount_owing;
 
         // Set different parameters depending on user's rating
         switch ($user_rating) {
@@ -66,6 +67,12 @@ class LoanController extends Controller
             ], 422);
         }
 
+        if (($fields['principal'] + $user_debt) > $principal_limit) {
+            return response([
+                'message' => 'You have passed your borrow limit of ₦'.$principal_limit. '. Pay off your limit to borrow more, Thanks'
+            ], 422);
+        }
+
         if ($fields['loan_duration'] > $duration_limit) {
             return response([
                 'message' => 'You must pay back in '.$duration_limit. 'year(s)'
@@ -81,13 +88,14 @@ class LoanController extends Controller
 
         $application_date = Carbon::now();
         if ($fields['loan_duration'] < 1) {
-            $due_date = Carbon::now()->addMonths(($fields['loan_duration'] * 12));
+            $due_date = Carbon::now()->addMonths(ceil($fields['loan_duration'] * 12));
         } else {
             $due_date = Carbon::now()->addYears($fields['loan_duration']);
         }
 
         $loan = Loan::create([
             'principal' => $fields['principal'],
+            'user_id' => $user->id,
             'interest_rate' => $interest_rate,
             'application_date' => $application_date,
             'due_date' => $due_date,
@@ -96,7 +104,7 @@ class LoanController extends Controller
 
         // Add loan debt to user's table
         $userModel = User::find($user->id);
-        $userModel->amount_owing = $total_amount_payable;
+        $userModel->amount_owing += $total_amount_payable;
         $userModel->save();
 
         $response = [
